@@ -3,6 +3,9 @@ package com.example.smsreceiverapp;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
     private SMSReceiver smsReceiver;
     private List<String> smsList;
 
+    private EditText editTextMessage;
+    private Button buttonSend;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +38,28 @@ public class MainActivity extends AppCompatActivity {
         smsList = new ArrayList<>();
         adapter = new SMSAdapter(smsList);
         recyclerView.setAdapter(adapter);
+
+        // Initialize EditText and Button
+        editTextMessage = findViewById(R.id.editTextMessage);
+        buttonSend = findViewById(R.id.buttonSend);
+
+        // Set click listener for the Send button
+        buttonSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = editTextMessage.getText().toString().trim();
+                if (!message.isEmpty()) {
+                    // Send the message to SMSReceiver for processing
+                    Intent intent = new Intent(MainActivity.this, SMSReceiver.class);
+                    intent.setAction("com.example.smsreceiverapp.SEND_MESSAGE");
+                    intent.putExtra("message", message);
+                    sendBroadcast(intent);
+                    Toast.makeText(MainActivity.this, "Message sent!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Please enter a message", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         // Register SMSReceiver to listen for incoming SMS messages
         smsReceiver = new SMSReceiver();
